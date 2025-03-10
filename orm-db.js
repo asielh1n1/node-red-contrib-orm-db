@@ -385,14 +385,25 @@ function createRelationship() {
             
             models[j].relationship.forEach(r=>{
                 let options = r.foreignKey ? { foreignKey: r.foreignKey, timestamps: false} : {timestamps: false}
+                
                 switch (r.association) {
                     case 'HasOne':{
                         sequelize[i].instance.models[j].hasOne(sequelize[i].instance.models[r.model], options)
                     }break;
                     case 'BelongsTo':{
+
+                        if (r.targetKey) {
+                            options.targetKey = r.targetKey;
+                        }
+
                         sequelize[i].instance.models[j].belongsTo(sequelize[i].instance.models[r.model], options)
                     }break;
                     case 'HasMany':{
+
+                        if (r.targetKey) {
+                            options.sourceKey = r.targetKey;
+                        }
+                        console.log(options)
                         sequelize[i].instance.models[j].hasMany(sequelize[i].instance.models[r.model], options)
                     }break;
                     case 'BelongsToMany':{                    
