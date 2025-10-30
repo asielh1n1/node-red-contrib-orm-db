@@ -46,8 +46,6 @@
             driver: { value: '', required: true },
             host: { value: '' },
             port: { value: '' },
-            username: { value: '' },
-            password: { value: '' },
             database: { value: '', validate:function(v) {
                 const driver = $("#node-config-input-driver").val()
                 if(driver && driver != 'sqlite' && !v)
@@ -66,7 +64,11 @@
                 
             } },
             dialectOptionsType: { value: 'json' },
-            logging: { value: 'enabled' }
+            logging: { value: 'enabled' },
+        },
+        credentials: {
+            username: { type:"text", value: '' },
+            password: { type:"password", value: '' }
         },
         label: function() {
             return this.name || this.driver;

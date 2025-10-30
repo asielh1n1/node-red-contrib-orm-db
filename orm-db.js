@@ -74,11 +74,12 @@ module.exports = function(RED) {
                     throw new Error('You must configure the database access server.')
                 }
                 const sequelizeKey = getKeyFromServer(server)
-                if(!sequelize[sequelizeKey])
+                // If this instance of Sequelize doesn't exist yet, I'll reload it.
+                if(!sequelize[sequelizeKey]){                    
                     sequelize[sequelizeKey] = createSequelizeInstance(server)
+                }
                 const sequelizeInstance =  sequelize[sequelizeKey].instance         
                 const model = node.model ? sequelize[sequelizeKey].instance.models[node.model.table] : null
-                
                 switch (node.queryType) {
                     case 'findAll':{
                         let options = {}
@@ -195,10 +196,14 @@ module.exports = function(RED) {
                         msg.payload = !result ? result : result.toJSON()
                     }break;
                     case 'raw':{
-                        let options = {}
+                        let options = {
+                            plain: false
+                        }
                         if( node.dataType != 'bool' ){
                             options.replacements = node.dataType == 'json' ? RED.util.evaluateNodeProperty(this.data, 'json', this) : getValueByIndex(msg, this.data)
                         }
+                        if(msg.transaction && transactions[msg.transaction])
+                            options.transaction = transactions[msg.transaction]
                         const result = await sequelizeInstance.query(msg.rawQuery || this.rawQuery, options)
                         msg.payload = result[0]
                     }break;
@@ -286,7 +291,7 @@ module.exports = function(RED) {
 function getDatabaseNodes(RED) {
     let result = {}
     RED.nodes.eachNode(function(node){
-        if(node.type == 'orm-db-connection'){
+        if(node.type == 'orm-db-connection'){           
             const key = getKeyFromServer(node)
             if(!result[key]){
                 result[key] = {
@@ -342,8 +347,8 @@ function getDatabaseNodes(RED) {
 
 function getKeyFromServer(server){
     if(server.driver == 'sqlite')
-        return `${server.driver}-${server.database || 'null'}`
-    else return `${server.driver}-${server.host || 'null'}-${server.port || 'null'}-${server.database || 'null'}`
+        return `${server.driver}-${server.database || 'null'}-${server.username || 'null'}`
+    else return `${server.driver}-${server.host || 'null'}-${server.port || 'null'}-${server.database || 'null'}-${server.username || 'null'}`
 }
 
 
@@ -431,7 +436,6 @@ function createRelationship() {
         }
     }
 }
-
 
 function ChangeObject(old, current) {
     if(JSON.stringify(old) !== JSON.stringify(current))
