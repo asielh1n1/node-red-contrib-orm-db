@@ -10,7 +10,7 @@ module.exports = function(RED) {
         let databases = getDatabaseNodes(RED)
         sequelize = {}
         databases.forEach(async db=>{
-            try {
+            try {               
                 sequelize[db.key] = createSequelizeInstance(db.server)
                 db.models.forEach(model=>{
                     try {
@@ -75,7 +75,7 @@ module.exports = function(RED) {
                 }
                 const sequelizeKey = getKeyFromServer(server)
                 // If this instance of Sequelize doesn't exist yet, I'll reload it.
-                if(!sequelize[sequelizeKey]){                    
+                if(!sequelize[sequelizeKey]){ 
                     sequelize[sequelizeKey] = createSequelizeInstance(server)
                 }
                 const sequelizeInstance =  sequelize[sequelizeKey].instance         
@@ -291,7 +291,7 @@ module.exports = function(RED) {
 function getDatabaseNodes(RED) {
     let result = {}
     RED.nodes.eachNode(function(node){
-        if(node.type == 'orm-db-connection'){           
+        if(node.type == 'orm-db-connection'){                     
             const key = getKeyFromServer(node)
             if(!result[key]){
                 result[key] = {
@@ -326,8 +326,8 @@ function getDatabaseNodes(RED) {
                         username: server.username,
                         password: server.password,
                         database: server.database,
-                        dialectOptions: node.dialectOptions,
-                        logging: node.logging
+                        dialectOptions: server.dialectOptions,
+                        logging: server.logging
                     },
                     models: []
                 }

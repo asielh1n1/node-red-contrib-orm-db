@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-orm-db",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "ORM for Oracle, Postgres, MySQL, MariaDB, SQLite and SQL Server, and more",
   "main": "index.js",
   "scripts": {
